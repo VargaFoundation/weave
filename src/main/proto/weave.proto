@@ -1,0 +1,15 @@
+syntax = "proto2";
+option java_package = "varga.weave.yarn.rpc.protocol";
+option java_outer_classname = "Protos";
+option java_generic_services = true;
+option java_generate_equals_and_hash = true;
+package varga.weave;
+
+import "yarn_protos.proto";
+
+message ListStringStringMapProto {
+  repeated hadoop.yarn.StringStringMapProto entry = 1;
+}
+
+
+
