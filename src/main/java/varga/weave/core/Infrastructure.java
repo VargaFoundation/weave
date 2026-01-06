@@ -75,4 +75,6 @@ public class Infrastructure implements Serializable {
      * A raw bucket containing all the specific properties of the infrastructure.
      */
     private Metadata metadata;
+
+    private Object target;
 }

@@ -58,7 +58,22 @@ class MySparkHook implements SparkApplicationLifecycleHandler {
 - PUT `/tenants/{tenant_id}/bridges/{bridge_id}/ws/v1/cluster/apps/{application_id}` — expects `{ "state": "KILLED"|... }`, delegated to `updateApplication`.
 
 4. HRPC/YARN protocols
-The repository contains the HRPC/YARN protocol handling (Netty + Protobuf messages). The goal is to enable legacy Hadoop/YARN clients to talk to this bridge. Services are being decoupled from any vendor‑specific dependencies and will rely on the same hook approach. You can wire your own behavior at the lifecycle events while keeping the binary protocol intact.
+The repository contains the HRPC/YARN protocol handling (Netty + Protobuf messages). The goal is to enable legacy Hadoop/YARN clients to talk to this bridge. Services are decoupled from concrete implementations and rely on a set of interfaces (InputPorts and Repositories).
+
+To provide your own implementation for the backend or storage, implement the corresponding interface and provide it as a Spring `@Bean`. The default "virtual" implementations are annotated with `@ConditionalOnMissingBean` and will be replaced by yours.
+
+Example of custom repository:
+```java
+@Component
+public class MyCustomContainerRepository implements ContainerRepository {
+    // Implement methods to store container information in a real DB
+}
+```
+
+Interfaces you can override:
+- `TenantManagerInputPort`, `InfrastructureManagerInputPort`, `BridgeManagerInputPort`, `ProjectManagerInputPort`, `JobManagerInputPort`, `DataManagerInputPort` (Core logic)
+- `ApplicationRepository`, `ClusterRepository`, `ContainerRepository` (RPC state storage)
+- `UserRepositoryAdapter`, `ApplicationRepositoryAdapter` (Authentication data)
 
 #### Configuration
 Auto‑configuration is provided via Spring factories and a router defined in `varga.weave.YarnBridgeConfig`. No extra configuration is required to expose the REST routes. To override behavior, just provide your own `SparkApplicationLifecycleHandler` bean (it will replace the default no‑op one).

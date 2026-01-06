@@ -40,7 +40,7 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 // https://github.com/yassineazzouz/cerastes/blob/90ceef51e399e319e6a94cb5e950f47dacf8821a/cerastes/channel.py#L161
 @EnableWebFlux
 @Configuration
-@ComponentScan("varga.weave.yarn")
+@ComponentScan("varga.weave")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class YarnBridgeConfig implements WebFluxConfigurer {
 

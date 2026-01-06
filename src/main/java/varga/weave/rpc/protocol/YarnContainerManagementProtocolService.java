@@ -24,15 +24,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.ServiceException;
-import varga.weave.job.Infrastructure;
-import varga.weave.job.k8s.KubernetesClientFactory;
-import varga.weave.job.k8s.KubernetesUtils;
-import varga.weave.job.k8s.NamespaceUtils;
-import varga.weave.job.port.JobManagerInputPort;
-import varga.weave.common.FreemarkerRenderer;
-import varga.weave.core.KubernetesTarget;
-import varga.weave.core.Utils;
-import varga.weave.yarn.rpc.protocol.Protos;
+import varga.weave.core.*;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
@@ -56,13 +48,12 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import varga.weave.core.InfrastructureManagerInputPort;
-import varga.weave.core.TenantManagerInputPort;
+import varga.weave.core.Infrastructure;
+import varga.weave.core.Pod;
+import varga.weave.core.EnvVar;
+import varga.weave.core.Container;
 import varga.weave.rpc.IdUtils;
 import varga.weave.rpc.SocketContext;
-import varga.weave.virtual.VirtualApplicationRepository;
-import varga.weave.virtual.VirtualClusterRepository;
-import varga.weave.virtual.VirtualContainerRepository;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -78,15 +69,12 @@ import static varga.weave.rpc.protocol.Constants.APPLICATION_MASTER_HOSTNAME;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class YarnContainerManagementProtocolService {
 
-    private final VirtualContainerRepository virtualContainerRepository;
-    private final VirtualClusterRepository virtualClusterRepository;
-    private final VirtualApplicationRepository virtualApplicationRepository;
+    private final ContainerRepository containerRepository;
+    private final ClusterRepository clusterRepository;
+    private final ApplicationRepository applicationRepository;
     private final TenantManagerInputPort tenantManagerInputPort;
     private final JobManagerInputPort jobManagerInputPort;
     private final InfrastructureManagerInputPort infrastructureManagerInputPort;
-    private final KubernetesClientFactory kubernetesClientFactory;
-    private final FreemarkerRenderer freemarkerRenderer;
-    private final NamespaceUtils namespaceUtils;
 
     public Message startContainers(DataInputStream in,
                                    SocketContext socketContext) throws Exception {
@@ -127,7 +115,7 @@ public class YarnContainerManagementProtocolService {
                                                     .flatMap(job ->
                                                             this.infrastructureManagerInputPort.findInfrastructureById(tenant, infrastructureId)
                                                                     .flatMap(infrastructure ->
-                                                                            this.virtualContainerRepository.getAndRemoveContainer(tenant, IdUtils.getContainerId(containerId))
+                                                                            this.containerRepository.getAndRemoveContainer(tenant, IdUtils.getContainerId(containerId))
                                                                                     .flatMap(c ->
                                                                                             prepareJob(
                                                                                                     tenant,
@@ -156,7 +144,7 @@ public class YarnContainerManagementProtocolService {
                 .block();
     }
 
-    private Mono<Boolean> prepareJob(Tenant tenant, Infrastructure infrastructure, ContainerProto container, String bridgeId, String projectId, varga.weave.job.Job job, String runId, String applicationId, ContainerLaunchContextProto containerLaunchContext) {
+    private Mono<Boolean> prepareJob(Tenant tenant, Infrastructure infrastructure, ContainerProto container, String bridgeId, String projectId, Job job, String runId, String applicationId, ContainerLaunchContextProto containerLaunchContext) {
         KubernetesTarget target = (KubernetesTarget) infrastructure.getTarget();
         return this.kubernetesClientFactory.usingKubeClient(target, kubernetesClient -> {
             String namespace = this.namespaceUtils.getOrCreateNamespace(kubernetesClient, tenant);
@@ -519,7 +507,7 @@ public class YarnContainerManagementProtocolService {
                 .flatMap(id -> {
                     long clusterId = id.getAppId().getClusterTimestamp();
                     int applicationId = id.getAppId().getId();
-                    return this.virtualClusterRepository.getTenantId(clusterId)
+                    return this.clusterRepository.getTenantId(clusterId)
                             .flatMap(tenantId ->
                                     this.tenantManagerInputPort.findTenantById(tenantId)
                                             .switchIfEmpty(Mono.error(new ServiceException("Tenant " + tenantId + " not found")))
@@ -528,7 +516,7 @@ public class YarnContainerManagementProtocolService {
                                                         .setClusterTimestamp(clusterId)
                                                         .setId(applicationId)
                                                         .build();
-                                                return this.virtualApplicationRepository.getApplication(tenant, applicationId1)
+                                                return this.applicationRepository.getApplication(tenant, applicationId1)
                                                         .flatMap(t4 -> {
 
                                                             String infrastructureId = t4.getT1();
@@ -563,7 +551,7 @@ public class YarnContainerManagementProtocolService {
                                                                         });
                                                                     });
                                                         })
-                                                        .flatMap(r -> this.virtualContainerRepository.getAndRemoveContainer(tenant, IdUtils.getContainerId(id))
+                                                        .flatMap(r -> this.containerRepository.getAndRemoveContainer(tenant, IdUtils.getContainerId(id))
                                                                 .thenReturn(r)
                                                         );
                                             }));

@@ -22,13 +22,9 @@ package varga.weave.rpc.protocol;
 
 import com.google.protobuf.Message;
 import com.google.protobuf.ServiceException;
+import varga.weave.core.*;
 import varga.weave.rpc.IdUtils;
 import varga.weave.rpc.SocketContext;
-import varga.weave.virtual.VirtualApplicationRepository;
-import varga.weave.virtual.VirtualClusterRepository;
-import varga.weave.job.port.*;
-import varga.weave.core.Metadata;
-import varga.weave.core.Tenant;
 import varga.weave.core.date.InstantFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,8 +54,8 @@ import static reactor.util.function.Tuples.of;
 public class YarnApplicationClientProtocolService {
 
     private final RpcAuthenticationManager rpcAuthenticationManager;
-    private final VirtualApplicationRepository virtualApplicationRepository;
-    private final VirtualClusterRepository virtualClusterRepository;
+    private final ApplicationRepository applicationRepository;
+    private final ClusterRepository clusterRepository;
     private final BridgeManagerInputPort bridgeManagerInputPort;
     private final ProjectManagerInputPort projectManagerInputPort;
     private final JobManagerInputPort jobManagerInputPort;
@@ -84,7 +80,7 @@ public class YarnApplicationClientProtocolService {
                 .switchIfEmpty(Mono.error(new ServiceException("Tenant " + tenantId + " not found")))
                 .flatMap(tenant ->
                         this.infrastructureManagerInputPort.findCapacityByInfrastructureById(tenant, infrastructureId)
-                                .flatMap(i -> this.virtualClusterRepository.getClusterId(tenant)
+                                .flatMap(i -> this.clusterRepository.getClusterId(tenant)
                                         .map(clusterId -> {
                                             // ApplicationId represents the globally unique identifier for an application.
                                             // The globally unique nature of the identifier is achieved by using the cluster timestamp i.e.
@@ -126,7 +122,7 @@ public class YarnApplicationClientProtocolService {
         return this.tenantManagerInputPort.findTenantById(tenantId)
                 .switchIfEmpty(Mono.error(new ServiceException("Tenant " + tenantId + " not found")))
                 .flatMap(tenant ->
-                        this.virtualApplicationRepository.getApplication(tenant, applicationId)
+                        this.applicationRepository.getApplication(tenant, applicationId)
                                 .switchIfEmpty(Mono.error(new ServiceException("Application " + IdUtils.getApplicationId(applicationId) + " not found")))
                                 .flatMap(t4 -> this.jobManagerInputPort.findJobByJobId(tenant, t4.getT3())
                                         .switchIfEmpty(Mono.error(new ServiceException("Job " + t4.getT3() + " not found")))
@@ -352,7 +348,7 @@ public class YarnApplicationClientProtocolService {
                                     .then(this.jobManagerInputPort.createRunForJob(tenant, j.getId(), run).map(r -> of(j, r)));
                 })
                 // Map the job into the table for application_id -> tenant_id,job_id,run_id mapping
-                .flatMap(t -> this.virtualApplicationRepository.saveApplication(tenant, applicationId, infrastructureId, project.getId(), t.getT1().getId(), t.getT2().getId()))
+                .flatMap(t -> this.applicationRepository.saveApplication(tenant, applicationId, infrastructureId, project.getId(), t.getT1().getId(), t.getT2().getId()))
                 ;
     }
 

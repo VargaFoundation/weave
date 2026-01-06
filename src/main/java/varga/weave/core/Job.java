@@ -23,6 +23,7 @@ package varga.weave.core;
 
 
 import lombok.Data;
+import java.beans.Transient;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -79,7 +80,6 @@ public class Job implements Serializable {
 
     private Notifications notifications;
 
-    @Transient
     public boolean isNew() {
         return true;
     }

@@ -21,10 +21,9 @@ package varga.weave.virtual;
  */
 
 
+import varga.weave.core.ClusterRepository;
 import varga.weave.core.Tenant;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -34,8 +33,7 @@ import java.util.Random;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class VirtualClusterRepository { // TODO use persistent storage
+public class VirtualClusterRepository implements ClusterRepository { // TODO use persistent storage
 
     private Map<String, Long> map = new HashMap<>();
     private Map<Long, String> reverseMap = new HashMap<>();

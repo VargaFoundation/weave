@@ -23,17 +23,9 @@ package varga.weave.rpc.protocol;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import com.google.protobuf.ServiceException;
+import varga.weave.core.*;
 import varga.weave.rpc.IdUtils;
 import varga.weave.rpc.SocketContext;
-import varga.weave.virtual.VirtualApplicationRepository;
-import varga.weave.virtual.VirtualClusterRepository;
-import varga.weave.virtual.VirtualContainerRepository;
-import varga.weave.job.k8s.KubernetesClientFactory;
-import varga.weave.job.k8s.KubernetesUtils;
-import varga.weave.job.port.InfrastructureManagerInputPort;
-import varga.weave.job.port.JobManagerInputPort;
-import varga.weave.job.port.TenantManagerInputPort;
-import varga.weave.core.KubernetesTarget;
 import varga.weave.yarn.rpc.protocol.Protos.ListStringStringMapProto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,10 +59,9 @@ public class YarnApplicationMasterProtocolService {
     private final InfrastructureManagerInputPort infrastructureManagerInputPort;
     private final JobManagerInputPort jobManagerInputPort;
     private final TenantManagerInputPort tenantManagerInputPort;
-    private final VirtualApplicationRepository virtualApplicationRepository;
-    private final VirtualContainerRepository virtualContainerRepository;
-    private final VirtualClusterRepository virtualClusterRepository;
-    private final KubernetesClientFactory kubernetesClientFactory;
+    private final ApplicationRepository applicationRepository;
+    private final ContainerRepository containerRepository;
+    private final ClusterRepository clusterRepository;
 
     public Message registerApplicationMaster(DataInputStream in,
                                              SocketContext socketContext) throws Exception {

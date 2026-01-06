@@ -21,15 +21,14 @@ package varga.weave.virtual;
  */
 
 
+import varga.weave.core.ContainerRepository;
 import varga.weave.core.Tenant;
 import varga.weave.rpc.IdUtils;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.yarn.proto.YarnProtos.ApplicationAttemptIdProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.ApplicationIdProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.ContainerIdProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.ContainerProto;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -41,8 +40,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class VirtualContainerRepository { // TODO use persistent storage
+public class VirtualContainerRepository implements ContainerRepository { // TODO use persistent storage
 
     private Map<String, ContainerProto> map = new HashMap<>();
     private AtomicLong uniqueContainerCounter = new AtomicLong();

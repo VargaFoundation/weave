@@ -21,12 +21,11 @@ package varga.weave.virtual;
  */
 
 
+import varga.weave.core.ApplicationRepository;
 import com.google.protobuf.UnknownFieldSet;
 import varga.weave.core.Tenant;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.yarn.proto.YarnProtos.ApplicationIdProto;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple4;
@@ -37,8 +36,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class VirtualApplicationRepository { // TODO use persistent storage
+public class VirtualApplicationRepository implements ApplicationRepository { // TODO use persistent storage
 
     private Map<ApplicationIdProto, Tuple4<String, String, String, String>> map = new HashMap<>();
     private Map<Tuple4<String, String, String, String>, ApplicationIdProto> reverseMap = new HashMap<>();
