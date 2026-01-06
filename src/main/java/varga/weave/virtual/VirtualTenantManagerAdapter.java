@@ -1,4 +1,4 @@
-package varga.weave.rest;
+package varga.weave.virtual;
 
 /*-
  * #%L
@@ -20,21 +20,19 @@ package varga.weave.rest;
  * #L%
  */
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import varga.weave.core.Tenant;
+import varga.weave.core.TenantManagerInputPort;
 
-@Data
-public class NewApplication {
-    @JsonProperty("application-id")
-    private String applicationId;
-    @JsonProperty("maximum-resource-capability")
-    private MaximumResourceCapability capability;
+@Service
+public class VirtualTenantManagerAdapter implements TenantManagerInputPort {
 
-    @Data
-    public static class MaximumResourceCapability {
-        @JsonProperty("memory")
-        private String memory;
-        @JsonProperty("vCores")
-        private String vCores;
+    @Override
+    public Mono<Tenant> findTenantById(String id) {
+        Tenant tenant = new Tenant();
+        tenant.setId(id);
+        tenant.setName(id);
+        return Mono.just(tenant);
     }
 }

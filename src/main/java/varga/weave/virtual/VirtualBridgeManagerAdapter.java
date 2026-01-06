@@ -1,4 +1,4 @@
-package varga.weave.rest;
+package varga.weave.virtual;
 
 /*-
  * #%L
@@ -20,21 +20,23 @@ package varga.weave.rest;
  * #L%
  */
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import varga.weave.core.Bridge;
+import varga.weave.core.BridgeManagerInputPort;
+import varga.weave.core.Tenant;
 
-@Data
-public class NewApplication {
-    @JsonProperty("application-id")
-    private String applicationId;
-    @JsonProperty("maximum-resource-capability")
-    private MaximumResourceCapability capability;
+import java.time.Instant;
 
-    @Data
-    public static class MaximumResourceCapability {
-        @JsonProperty("memory")
-        private String memory;
-        @JsonProperty("vCores")
-        private String vCores;
+@Service
+public class VirtualBridgeManagerAdapter implements BridgeManagerInputPort {
+
+    @Override
+    public Mono<Bridge> findBridgeById(Tenant tenant, String id) {
+        Bridge bridge = new Bridge();
+        bridge.setId(id);
+        bridge.setType("yarn");
+        bridge.setCreated(Instant.now());
+        return Mono.just(bridge);
     }
 }

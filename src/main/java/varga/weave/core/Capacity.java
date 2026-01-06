@@ -1,4 +1,4 @@
-package varga.weave.rest;
+package varga.weave.core;
 
 /*-
  * #%L
@@ -20,21 +20,15 @@ package varga.weave.rest;
  * #L%
  */
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class NewApplication {
-    @JsonProperty("application-id")
-    private String applicationId;
-    @JsonProperty("maximum-resource-capability")
-    private MaximumResourceCapability capability;
-
-    @Data
-    public static class MaximumResourceCapability {
-        @JsonProperty("memory")
-        private String memory;
-        @JsonProperty("vCores")
-        private String vCores;
-    }
+@NoArgsConstructor
+@AllArgsConstructor
+public class Capacity {
+    private int min;
+    private int max;
+    private int current;
 }

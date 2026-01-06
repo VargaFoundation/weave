@@ -4,7 +4,7 @@ package varga.weave.rpc.protocol;
  * #%L
  * Weave
  * %%
- * Copyright (C) 2025 Varga Foundation
+ * Copyright (C) 2025 - 2026 Varga Foundation
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,7 @@ package varga.weave.rpc.protocol;
  * #L%
  */
 
-import varga.weave.job.StandardErrorCodes;
-import varga.weave.job.adapter.ApplicationRepositoryAdapter;
-import varga.weave.job.adapter.UserRepositoryAdapter;
+import varga.weave.core.StandardErrorCodes;
 import varga.weave.core.AuthenticationType;
 import varga.weave.core.InternalAuthentication;
 import varga.weave.core.Tenant;
